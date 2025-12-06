@@ -1,50 +1,130 @@
-# Welcome to your Expo app 👋
+# 技術書管理アプリ (Tech Book Shelf) 📚
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+React Native (Expo) における「動的なデータ」の扱いをマスターするためのハンズオン課題です。
+このプロジェクトを通して、**API 通信**、**フォーム入力（モーダル）**、そして**データの永続化（保存）**の実装方法を学びます。
 
-## Get started
+## 🏁 ゴール
 
-1. Install dependencies
+以下の機能を持つ「技術書管理アプリ」を完成させてください。
 
-   ```bash
-   npm install
-   ```
+1.  **おすすめ本リスト**: 外部 API からデータを取得して表示する。
+2.  **本の追加**: モーダルフォームから自分の好きな本を追加できる。
+3.  **読書記録**: 読んだ本にチェックをつけ、アプリを再起動してもその状態を維持する。
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🛠 セットアップ
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. プロジェクトの作成
 
 ```bash
-npm run reset-project
+npx create-expo-app@latest tech-book-shelf
+cd tech-book-shelf
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. 必要なライブラリのインストール
 
-## Learn more
+今回は「データの保存」を行うため、外部ライブラリが必要です。
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npx expo install @react-native-async-storage/async-storage
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 📝 課題 (Missions)
 
-## Join the community
+### Mission 1: API からデータを取得する (Networking)
 
-Join our community of developers creating universal apps.
+まずは、静的なダミーデータではなく、インターネット上の API からデータを取得して表示させましょう。
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `https://jsonplaceholder.typicode.com/posts` からデータを fetch してください。
+- データ量が多いので、先頭の 10 件だけ (`slice(0, 10)`) を表示してください。
+- データ取得中は、ユーザーが不安にならないように「グルグル（インジケータ）」を表示してください。
+
+💡 **Hint:**
+
+- 副作用フック `useEffect` 内で非同期処理を実行します。
+- ローディング状態の管理には `useState(true)` を使い、取得完了後に `false` にします。
+- コンポーネント: `<ActivityIndicator />`
+
+### Mission 2: 本を追加するフォームを作る (Input UX)
+
+「＋」ボタンを押して、自分の好きな本をリストに追加できるようにします。
+
+- `<Modal>` を使い、下からスライドして現れる入力画面を作ってください。
+- 「タイトル」と「概要」を入力して追加ボタンを押すと、リストの先頭に追加されるようにしてください。
+- 【重要】 キーボードが出ても入力欄が隠れないようにし、背景タップでキーボードが閉じるようにしてください。
+
+💡 **Hint:**
+
+- ネイティブアプリの鬼門「キーボード問題」への対策が必要です。
+- `<TouchableWithoutFeedback onPress={Keyboard.dismiss}>` で全体を囲む。
+- `<KeyboardAvoidingView behavior="...">` で入力欄を囲む。
+
+### Mission 3: 読了状態を保存する (Persistence)
+
+アプリを閉じてもデータが消えないようにします。
+
+- リストの右側に「本アイコン（未読）」を配置し、タップすると「チェックアイコン（読了）」に切り替わるようにしてください（色はグレー ⇔ 緑など）。
+- アプリを再起動しても、何が「読了」か忘れないようにしてください。
+
+💡 **Hint:**
+
+- `AsyncStorage` は非同期（Promise）です。
+- 全データを保存する必要はありません。「読了した本の ID リスト（配列）」だけを保存・読み込みするのが効率的です。
+
+### Mission 4: ロジックの分離 (Refactoring / Advanced)
+
+`index.tsx` が肥大化しないように、設計を整えましょう。
+
+- API 取得、追加、保存などのロジックを Custom Hook (`useRecommendedBooks`) に切り出してください。
+- モーダルの見た目と入力管理を コンポーネント (`AddBookModal`) に切り出してください。
+
+💡 **Hint:**
+
+- View（見た目）と Logic（処理）を分離することで、可読性と保守性が劇的に向上します。
+- 親コンポーネントは「データの表示」と「イベントの伝達」だけに集中させましょう。
+
+## 📚 技術ガイド
+
+### 非同期データ取得の基本形 (TypeScript)
+
+```typescript
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await fetch("URL");
+      const json = await response.json();
+      setData(json);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  fetchData();
+}, []);
+```
+
+### AsyncStorage の基本操作
+
+Web の `localStorage` と違い、必ず `await` が必要です。
+
+```typescript
+// 保存
+await AsyncStorage.setItem("key", JSON.stringify(value));
+
+// 読み込み
+const value = await AsyncStorage.getItem("key");
+if (value !== null) {
+  // JSON.parse(value) ...
+}
+```
+
+## ✅ 完成チェックリスト
+
+- アプリ起動時に「読み込み中...」のグルグルが表示されるか？
+- 本の追加時、キーボードで入力欄が隠れてしまわないか？
+- 追加ボタンを押した後、フォームの内容はリセットされているか？
+- アプリをタスクキルして再起動しても、読了マーク（チェック）は残っているか？
+
+Happy Coding! 🚀

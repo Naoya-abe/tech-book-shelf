@@ -39,10 +39,7 @@ export default function HomeScreen() {
     );
 
   return (
-    <View style={styles.screenContainer}>
-      <View style={[styles.header, { paddingTop: insets.top }]}>
-        <Text>Header</Text>
-      </View>
+    <View style={[styles.screenContainer, { paddingTop: insets.top }]}>
       <View style={styles.content}>
         <FlatList
           data={data}
@@ -88,7 +85,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 16,
   },
-  header: { height: 100 },
   content: { flex: 1 },
   bookList: {
     padding: 16,
