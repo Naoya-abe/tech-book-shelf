@@ -34,20 +34,24 @@ export default function AddBookModal({ visible, onClose, onSubmit }: Props) {
           style={styles.modalOverlay}
         >
           <View style={styles.modalContent}>
+            <View style={styles.handleContainer}>
+              <View style={styles.handle} />
+            </View>
             <Text style={styles.modalTitle}>新しい本を追加</Text>
             <TextInput
               style={styles.modalInput}
               placeholder="タイトル"
-              placeholderTextColor="gray"
+              placeholderTextColor="#999"
               value={title}
               onChangeText={setTitle}
             />
             <TextInput
               style={styles.modalInput}
               placeholder="概要"
-              placeholderTextColor="gray"
+              placeholderTextColor="#999"
               value={body}
               onChangeText={setBody}
+              multiline
             />
             <TouchableOpacity
               style={[styles.modalButton, styles.modalAddButton]}
@@ -59,7 +63,7 @@ export default function AddBookModal({ visible, onClose, onSubmit }: Props) {
               style={[styles.modalButton, styles.modalCancelButton]}
               onPress={() => onClose()}
             >
-              <Text style={styles.modalButtonText}>キャンセル</Text>
+              <Text style={styles.modalCancelButtonText}>キャンセル</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -76,37 +80,75 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: "white",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    minHeight: 300,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+    paddingBottom: 40, // More bottom padding for aesthetics
+    minHeight: 320,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: -4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  handleContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  handle: {
+    width: 40,
+    height: 4,
+    backgroundColor: "#ccc",
+    borderRadius: 2,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 24,
+    textAlign: "center",
+    color: "#333",
   },
   modalInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 8,
+    backgroundColor: "#F0F0F0",
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 16,
+    fontSize: 16,
+    color: "#333",
   },
   modalButton: {
-    padding: 12,
-    borderRadius: 8,
+    padding: 16,
+    borderRadius: 12,
     alignItems: "center",
+    marginTop: 8,
   },
   modalAddButton: {
     backgroundColor: "#007AFF",
-    marginBottom: 8,
+    marginBottom: 12,
+    shadowColor: "#007AFF",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
   modalCancelButton: {
-    backgroundColor: "gray",
+    backgroundColor: "transparent",
+    padding: 12,
   },
   modalButtonText: {
     color: "white",
     fontWeight: "bold",
+    fontSize: 16,
+  },
+  modalCancelButtonText: {
+    color: "#666",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
