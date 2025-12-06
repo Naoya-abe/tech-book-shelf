@@ -14,7 +14,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const { data, isLoading, error, refetch, add } = useRecommendedBooks();
+  const { data, done, isLoading, error, refetch, add, toggleDone } =
+    useRecommendedBooks();
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleModalOpen = () => {
@@ -48,8 +49,17 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.bookItem}>
-              <Text style={styles.bookItemTitle}>{item.title}</Text>
-              <Text style={styles.bookItemBody}>{item.body}</Text>
+              <View style={styles.textContainer}>
+                <Text style={styles.bookItemTitle}>{item.title}</Text>
+                <Text style={styles.bookItemBody}>{item.body}</Text>
+              </View>
+              <TouchableOpacity onPress={() => toggleDone(item.id)}>
+                <Ionicons
+                  name={done.includes(item.id) ? "book" : "book-outline"}
+                  size={30}
+                  color={done.includes(item.id) ? "green" : "gray"}
+                />
+              </TouchableOpacity>
             </View>
           )}
         />
@@ -86,8 +96,11 @@ const styles = StyleSheet.create({
   bookItem: {
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
-    paddingVertical: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
+  textContainer: { flex: 1, padding: 16 },
   bookItemTitle: {
     fontSize: 16,
     fontWeight: "bold",
