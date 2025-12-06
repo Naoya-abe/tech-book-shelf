@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { memo, useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -18,7 +18,7 @@ type Props = {
   onSubmit: (title: string, body: string) => void;
 };
 
-export default function AddBookModal({ visible, onClose, onSubmit }: Props) {
+const AddBookModal = memo(({ visible, onClose, onSubmit }: Props) => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   return (
@@ -70,7 +70,11 @@ export default function AddBookModal({ visible, onClose, onSubmit }: Props) {
       </TouchableWithoutFeedback>
     </Modal>
   );
-}
+});
+
+AddBookModal.displayName = "AddBookModal";
+
+export default AddBookModal;
 
 const styles = StyleSheet.create({
   modalOverlay: {

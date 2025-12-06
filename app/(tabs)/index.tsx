@@ -1,12 +1,13 @@
 import AddBookModal from "@/components/add-book-modal";
+import BookItem from "@/components/book-item";
 import { useRecommendedBooks } from "@/hooks/use-recommended-books";
+import { Post } from "@/types/post";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -18,18 +19,32 @@ export default function HomeScreen() {
     useRecommendedBooks();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const handleModalOpen = () => {
+  const handleModalOpen = useCallback(() => {
     setModalVisible(true);
-  };
+  }, []);
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setModalVisible(false);
-  };
+  }, []);
 
-  const handleAdd = (title: string, body: string) => {
-    add(title, body);
-    setModalVisible(false);
-  };
+  const handleAdd = useCallback(
+    (title: string, body: string) => {
+      add(title, body);
+      setModalVisible(false);
+    },
+    [add]
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: Post }) => (
+      <BookItem
+        item={item}
+        isDone={done.includes(item.id)}
+        onToggle={toggleDone}
+      />
+    ),
+    [done, toggleDone]
+  );
 
   if (isLoading)
     return (
@@ -44,21 +59,7 @@ export default function HomeScreen() {
         <FlatList
           data={data}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.bookItem}>
-              <View style={styles.textContainer}>
-                <Text style={styles.bookItemTitle}>{item.title}</Text>
-                <Text style={styles.bookItemBody}>{item.body}</Text>
-              </View>
-              <TouchableOpacity onPress={() => toggleDone(item.id)}>
-                <Ionicons
-                  name={done.includes(item.id) ? "book" : "book-outline"}
-                  size={30}
-                  color={done.includes(item.id) ? "green" : "gray"}
-                />
-              </TouchableOpacity>
-            </View>
-          )}
+          renderItem={renderItem}
         />
         <TouchableOpacity onPress={handleModalOpen} style={styles.addBtn}>
           <Ionicons name="add" size={30} color="white" />

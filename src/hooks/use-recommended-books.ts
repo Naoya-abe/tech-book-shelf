@@ -14,11 +14,12 @@ export function useRecommendedBooks() {
 
   const refetch = useCallback(async () => {
     setIsLoading(true);
+    // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
     try {
       const response = await fetch(URL);
-      const data = await response.json();
-      setData(data.slice(0, 10));
+      const json = await response.json();
+      setData(json.slice(0, 10));
     } catch (error) {
       setError(error as Error);
     } finally {
@@ -49,36 +50,36 @@ export function useRecommendedBooks() {
     }
   }, []);
 
-  const loadDone = async () => {
-    try {
-      const done = await AsyncStorage.getItem(DONE_KEY);
-      if (done) {
-        setDone(JSON.parse(done));
+  const toggleDone = useCallback(
+    async (id: number) => {
+      const newDone = done.includes(id)
+        ? done.filter((item) => item !== id)
+        : [...done, id];
+
+      setDone(newDone);
+
+      try {
+        await AsyncStorage.setItem(DONE_KEY, JSON.stringify(newDone));
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const toggleDone = async (id: number) => {
-    let targetData;
-    if (done.includes(id)) {
-      targetData = done.filter((item) => item !== id);
-    } else {
-      targetData = [...done, id];
-    }
-    setDone(targetData);
-
-    try {
-      await AsyncStorage.setItem(DONE_KEY, JSON.stringify(targetData));
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    },
+    [done]
+  );
 
   useEffect(() => {
-    refetch();
-    loadDone();
+    const init = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(DONE_KEY);
+        if (stored) {
+          setDone(JSON.parse(stored));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      refetch();
+    };
+    init();
   }, [refetch]);
 
   return {
